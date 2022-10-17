@@ -62,7 +62,7 @@ class GraphQlRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
     @Override
     public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-        // josh's specific app stuff
+        // josh's app specific stuff
         List.of(Customer.class, CustomerGraphqlController.class).forEach(c -> hints.reflection().registerType(c, this.values));
         hints.resources().registerResource(GraphqlApplication.RESOURCE);
 
