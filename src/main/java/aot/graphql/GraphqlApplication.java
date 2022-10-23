@@ -1,4 +1,6 @@
 package aot.graphql;
+ 
+
 
 import graphql.GraphQL;
 import graphql.analysis.QueryVisitorFieldArgumentEnvironment;
@@ -17,30 +19,21 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.graphql.GraphQlSourceBuilderCustomizer;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
+@ImportRuntimeHints(GraphqlRuntimeHintsRegistrar.class)
 @SpringBootApplication
-@ImportRuntimeHints(GraphQlRuntimeHintsRegistrar.class)
 public class GraphqlApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GraphqlApplication.class, args);
-    }
-
-    static final Resource RESOURCE = new ClassPathResource("/graphql/schema.graphqls");
-
-    @Bean
-    GraphQlSourceBuilderCustomizer aotGraphQlSourceBuilderCustomizer() {
-        return builder -> builder.schemaResources(RESOURCE);
     }
 }
 
@@ -56,27 +49,19 @@ class CustomerGraphqlController {
 record Customer(Integer id, String name) {
 }
 
-class GraphQlRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
+class GraphqlRuntimeHintsRegistrar implements RuntimeHintsRegistrar {
 
     private final MemberCategory[] values = MemberCategory.values();
 
     @Override
     public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-        // josh's app specific stuff
         List.of(Customer.class, CustomerGraphqlController.class).forEach(c -> hints.reflection().registerType(c, this.values));
-        hints.resources().registerResource(GraphqlApplication.RESOURCE);
-
-        // spring graphql stuff
-
-        hints.resources().registerResource(new ClassPathResource("graphiql/index.html"));
-
-        List.of("i18n/Validation.properties", "i18n/Validation", "i18n/Execution.properties", "i18n/General.properties")
+        Set.of("graphiql/index.html", "graphql/schema.graphqls").forEach(s -> hints.resources().registerResource(new ClassPathResource(s)));
+        Set.of("i18n/Validation.properties", "i18n/Validation", "i18n/Execution.properties", "i18n/General.properties")
                 .forEach(r -> hints.resources().registerResourceBundle(r));
-
-        List.of("graphql.analysis.QueryTraversalContext", "graphql.schema.idl.SchemaParseOrder")
+        Set.of("graphql.analysis.QueryTraversalContext", "graphql.schema.idl.SchemaParseOrder")
                 .forEach(typeName -> hints.reflection().registerType(TypeReference.of(typeName), this.values));
-
-        List.of(
+        Set.of(
                         Argument.class, ArrayValue.class, Boolean.class, BooleanValue.class, DataFetchingEnvironment.class,
                         Directive.class, DirectiveDefinition.class, DirectiveLocation.class, Document.class,
                         EnumTypeDefinition.class, EnumTypeExtensionDefinition.class, EnumValue.class, EnumValueDefinition.class,
