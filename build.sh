@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-mvn -Pnative -DskipTests clean package &&  ./target/graphql
+mvn -Pnative -DskipTests clean native:compile &&  ./target/graphql
