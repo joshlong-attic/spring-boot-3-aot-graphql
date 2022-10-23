@@ -42,7 +42,7 @@ public class GraphqlApplication {
     final static ClassPathResource SCHEMA_RESOURCE = new ClassPathResource("/graphql/schema.graphqls");
 
     @Bean
-    GraphQlSourceBuilderCustomizer customizer() {
+    GraphQlSourceBuilderCustomizer graphQlSourceBuilderCustomizer() {
         return builder -> builder.schemaResources(SCHEMA_RESOURCE);
     }
 }
